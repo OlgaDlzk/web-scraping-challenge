@@ -11,13 +11,15 @@ def scrape():
     executable_path = {'executable_path': ChromeDriverManager().install()}
     browser = Browser('chrome', **executable_path, headless=False)
 
-    # Visit the Mars news site: https://static.bc-edx.com/data/web/mars_news/index.html
+    # Visit the Mars news site: https://redplanetscience.com/
     url = 'https://redplanetscience.com/'
     browser.visit(url)
 
+    # Create a Beautiful Soup object
     html = browser.html
     new_soup = soup(html, 'html.parser')
 
+    # Scrape the most recent title and paragraph 
     results = new_soup.select_one('div', class_='list_text')
 
     title = results.find('div', class_='content_title').text.strip()
@@ -30,7 +32,7 @@ def scrape():
     executable_path = {'executable_path': ChromeDriverManager().install()}
     browser = Browser('chrome', **executable_path, headless=False)
 
-    # Visit the Mars news site
+    # Visit the Mars site
     url = 'https://spaceimages-mars.com/'
     browser.visit(url)
 
@@ -38,19 +40,25 @@ def scrape():
     html = browser.html
     image_soup = soup(html, 'html.parser')
 
+    # Scrape featured image
     relative_image_path = image_soup.find('img', class_='headerimage fade-in')["src"]
     featured_img_url = url + relative_image_path
 
+    # Visit the Mars facts site
     url = 'https://galaxyfacts-mars.com/'
 
+    # read HTML into panda variable and select the first table 
     tables = pd.read_html(url)
 
     df = tables[1]
 
     df.columns = ['Parameter','Value']
     df['Parameter'] = df['Parameter'].str.replace(':','')
+    # df.set_index('Parameter', inplace=True)
 
-    df_html = df.to_html()
+    df_html = df.to_html(table_id="html_tbl_css",justify='left',index=False)
+
+    browser.quit()
 
     # Setup splinter
     executable_path = {'executable_path': ChromeDriverManager().install()}
